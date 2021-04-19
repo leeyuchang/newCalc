@@ -14,9 +14,9 @@ function item(id, price, count) {
   this.checked = true;
 }
 
-const hasMultiOperator = char => char.indexOf('*') > -1;
+const hasMultiOperator = char => char?.indexOf('*') > -1;
 
-const getLastChar = str => str.charAt(str.length - 1);
+const getLastChar = str => str?.charAt(str.length - 1);
 const getLastEquationInit = str => str?.split('+')[str?.split('+').length - 2]; // 플러스가 하나 많다
 const getLastEquationDone = str => str?.split('+')[str?.split('+').length - 1]; // 플러스가 하나 적다
 
@@ -29,7 +29,6 @@ const App = () => {
     if (input !== '' && !doneRef.current) {
       const lastEquationDone = getLastEquationDone(str);
       if (hasMultiOperator(lastEquationDone)) {
-        console.log('lastEquationDone', lastEquationDone);
         const multiIndex = lastEquationDone.indexOf('*');
         const price = lastEquationDone.substring(0, multiIndex);
         const count = lastEquationDone.substring(multiIndex + 1, str.length);
@@ -46,7 +45,46 @@ const App = () => {
     }
     doneRef.current = true;
   };
-  const backspace = () => {};
+
+  const onChangeText = str => {
+    if (!doneRef.current) {
+      // 리셋버튼 클릭 확인
+      setInput(str);
+      if (getLastChar(str) === '+') {
+        // + 로 끝나면
+        const lastQuationInit = getLastEquationInit(str);
+        if (hasMultiOperator(lastQuationInit)) {
+          // * 곱셈이 있으면
+          const multiIndex = lastQuationInit.indexOf('*');
+          const price = lastQuationInit.substring(0, multiIndex);
+          const count = lastQuationInit.substring(
+            multiIndex + 1,
+            lastQuationInit.length,
+          );
+          console.log('price', price, 'count', count);
+          setObj(prev => {
+            return prev.concat(new item(uuid(), Number(price), Number(count)));
+          });
+        } else {
+          // * 곱셈이 없으면
+          setObj(prev => {
+            return prev.concat(
+              new item(uuid(), Number(getLastEquationInit(str)), 1),
+            );
+          });
+        }
+      }
+    }
+  };
+
+  const backspace = () => {
+    const plusMarkIndex = input.lastIndexOf('+');
+    if (plusMarkIndex > -1) {
+      setInput(input.substring(0, plusMarkIndex));
+    } else {
+      reset();
+    }
+  };
 
   const reset = () => {
     setInput('');
@@ -64,38 +102,7 @@ const App = () => {
       <TextInput
         style={styles.label}
         value={input}
-        onChangeText={str => {
-          if (!doneRef.current) {
-            // = 계산을 완료 했다면, 반드시 리셋버튼을 클릭하기 위해
-            setInput(str);
-            if (getLastChar(str) === '+') {
-              // + 로 끝나면
-              const lastQuationInit = getLastEquationInit(str);
-              if (hasMultiOperator(lastQuationInit)) {
-                // * 곱셈이 있으면
-                const multiIndex = lastQuationInit.indexOf('*');
-                const price = lastQuationInit.substring(0, multiIndex);
-                const count = lastQuationInit.substring(
-                  multiIndex + 1,
-                  lastQuationInit.length,
-                );
-                console.log('price', price, 'count', count);
-                setObj(prev => {
-                  return prev.concat(
-                    new item(uuid(), Number(price), Number(count)),
-                  );
-                });
-              } else {
-                // * 곱셈이 없으면
-                setObj(prev => {
-                  return prev.concat(
-                    new item(uuid(), Number(getLastEquationInit(str)), 1),
-                  );
-                });
-              }
-            }
-          }
-        }}
+        onChangeText={onChangeText}
         autoCorrect={false}
         autoCapitalize="none"
         keyboardType="numbers-and-punctuation"
