@@ -8,10 +8,12 @@ function item(id, price, count) {
   this.id = id;
   this.price = price;
   this.count = count;
-  this.name = null;
-  this.desc = null;
-  this.photo = null;
+  this.name = '';
+  this.desc = '';
+  this.photo = '';
+  this.checked = true;
 }
+
 const hasMultiOperator = char => char.indexOf('*') > -1;
 
 const getLastChar = str => str.charAt(str.length - 1);
@@ -29,8 +31,8 @@ const App = () => {
       if (hasMultiOperator(lastEquationDone)) {
         console.log('lastEquationDone', lastEquationDone);
         const multiIndex = lastEquationDone.indexOf('*');
-        const price = str.substring(0, multiIndex);
-        const count = str.substring(multiIndex + 1, str.length);
+        const price = lastEquationDone.substring(0, multiIndex);
+        const count = lastEquationDone.substring(multiIndex + 1, str.length);
         setObj(prev => {
           return prev.concat(new item(uuid(), Number(price), Number(count)));
         });
