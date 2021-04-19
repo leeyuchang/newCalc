@@ -24,6 +24,7 @@ const App = () => {
   const [input, setInput] = useState('');
   const [obj, setObj] = useState([]);
   const doneRef = useRef(false);
+  const multRef = useRef(false);
 
   const calculate = str => {
     if (input !== '' && !doneRef.current) {
@@ -79,8 +80,12 @@ const App = () => {
 
   const backspace = () => {
     const plusMarkIndex = input.lastIndexOf('+');
-    if (plusMarkIndex > -1) {
+    const hasPlusMark = plusMarkIndex > -1;
+    if (hasPlusMark) {
       setInput(input.substring(0, plusMarkIndex));
+      setObj(prev => {
+        return prev.filter((_, idx) => idx !== prev.length - 1);
+      });
     } else {
       reset();
     }
