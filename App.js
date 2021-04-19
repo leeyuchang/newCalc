@@ -3,7 +3,6 @@ import 'react-native-get-random-values';
 import React, {useState, useRef, useEffect} from 'react';
 import {View, Text, TextInput, StyleSheet, Button} from 'react-native';
 import {v4 as uuid} from 'uuid';
-// import {Picker} from '@react-native-community/picker';
 
 function item(id, price, count) {
   this.id = id;
@@ -25,6 +24,7 @@ const App = () => {
     if (input !== '' && !doneRef.current) {
       const lastEquationDone = getLastEquationDone(str);
       if (isMultiOperator(lastEquationDone)) {
+        console.log('lastEquationDone', lastEquationDone);
         const multiIndex = lastEquationDone.indexOf('*');
         const price = str.substring(0, multiIndex);
         const count = str.substring(multiIndex + 1, str.length);
@@ -59,35 +59,36 @@ const App = () => {
       <TextInput
         style={styles.label}
         value={input}
-        multiline="10"
         onChangeText={str => {
-          setInput(str);
-          console.log('test');
-          if (getLastChar(str) === '+') {
-            // + 로 끝나면
-            console.log('+ 로 끝나면', getLastEquationInit(str));
-            const lastQuationInit = getLastEquationInit(str);
-            if (isMultiOperator(lastQuationInit)) {
-              // * 곱셈이 있으면
-              const mulIndex = lastQuationInit.indexOf('*');
-              const price = lastQuationInit.substring(0, mulIndex);
-              const count = lastQuationInit.substring(
-                mulIndex + 1,
-                lastQuationInit.length,
-              );
-              console.log('price', price, 'count', count);
-              setObj(prev => {
-                return prev.concat(
-                  new item(uuid(), Number(price), Number(count)),
+          if (!doneRef.current) {
+            // = 계산을 하지 않았다면 OK
+            setInput(str);
+            if (getLastChar(str) === '+') {
+              // + 로 끝나면
+              console.log('+ 로 끝나면', getLastEquationInit(str));
+              const lastQuationInit = getLastEquationInit(str);
+              if (isMultiOperator(lastQuationInit)) {
+                // * 곱셈이 있으면
+                const mulIndex = lastQuationInit.indexOf('*');
+                const price = lastQuationInit.substring(0, mulIndex);
+                const count = lastQuationInit.substring(
+                  mulIndex + 1,
+                  lastQuationInit.length,
                 );
-              });
-            } else {
-              // * 곱셈이 없으면
-              setObj(prev => {
-                return prev.concat(
-                  new item(uuid(), Number(getLastEquationInit(str)), 1),
-                );
-              });
+                console.log('price', price, 'count', count);
+                setObj(prev => {
+                  return prev.concat(
+                    new item(uuid(), Number(price), Number(count)),
+                  );
+                });
+              } else {
+                // * 곱셈이 없으면
+                setObj(prev => {
+                  return prev.concat(
+                    new item(uuid(), Number(getLastEquationInit(str)), 1),
+                  );
+                });
+              }
             }
           }
         }}
