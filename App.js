@@ -8,8 +8,11 @@ function item(id, price, count) {
   this.id = id;
   this.price = price;
   this.count = count;
+  this.name = null;
+  this.desc = null;
+  this.photo = null;
 }
-const isMultiOperator = char => char.indexOf('*') > -1;
+const hasMultiOperator = char => char.indexOf('*') > -1;
 
 const getLastChar = str => str.charAt(str.length - 1);
 const getLastEquationInit = str => str?.split('+')[str?.split('+').length - 2]; // 플러스가 하나 많다
@@ -23,7 +26,7 @@ const App = () => {
   const calculate = str => {
     if (input !== '' && !doneRef.current) {
       const lastEquationDone = getLastEquationDone(str);
-      if (isMultiOperator(lastEquationDone)) {
+      if (hasMultiOperator(lastEquationDone)) {
         console.log('lastEquationDone', lastEquationDone);
         const multiIndex = lastEquationDone.indexOf('*');
         const price = str.substring(0, multiIndex);
@@ -61,18 +64,17 @@ const App = () => {
         value={input}
         onChangeText={str => {
           if (!doneRef.current) {
-            // = 계산을 하지 않았다면 OK
+            // = 계산을 완료 했다면, 반드시 리셋버튼을 클릭하기 위해
             setInput(str);
             if (getLastChar(str) === '+') {
               // + 로 끝나면
-              console.log('+ 로 끝나면', getLastEquationInit(str));
               const lastQuationInit = getLastEquationInit(str);
-              if (isMultiOperator(lastQuationInit)) {
+              if (hasMultiOperator(lastQuationInit)) {
                 // * 곱셈이 있으면
-                const mulIndex = lastQuationInit.indexOf('*');
-                const price = lastQuationInit.substring(0, mulIndex);
+                const multiIndex = lastQuationInit.indexOf('*');
+                const price = lastQuationInit.substring(0, multiIndex);
                 const count = lastQuationInit.substring(
-                  mulIndex + 1,
+                  multiIndex + 1,
                   lastQuationInit.length,
                 );
                 console.log('price', price, 'count', count);
